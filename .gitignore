@@ -3,3 +3,6 @@
 
 ## DATABASE
 /database-boardcamp
+
+## ENV FILE
+.env
