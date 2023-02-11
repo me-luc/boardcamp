@@ -1,10 +1,10 @@
 import { Router } from "express";
 
-const userRouter = Router();
+const rentalRouter = Router();
 
-userRouter.get("/rentals");
-userRouter.post("/rentals");
-userRouter.post("/rentals/:id/return");
-userRouter.delete("/rentals/:id");
+rentalRouter.get("/rentals");
+rentalRouter.post("/rentals");
+rentalRouter.post("/rentals/:id/return");
+rentalRouter.delete("/rentals/:id");
 
-export default userRouter;
+export default rentalRouter;

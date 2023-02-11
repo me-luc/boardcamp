@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-export default rentSchema = Joi.object({
+export default rentalSchema = Joi.object({
 	rentDate: Joi.date().required(),
 	daysRented: Joi.number().min(1).required(),
 	returnDate: Joi.date().required(),
