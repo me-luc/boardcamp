@@ -23,6 +23,14 @@ export async function addGames(req, res) {
 	}
 
 	try {
+		const gameExist = await db.query(
+			`SELECT * FROM games WHERE name = $1`,
+			[newGame.name]
+		);
+
+		if (gameExist.rowCount > 0)
+			return res.status(409).send("Game name already exists");
+
 		await db.query(
 			`INSERT INTO games ( name, image, "stockTotal", "pricePerDay") VALUES ($1, $2, $3, $4);`,
 			[
