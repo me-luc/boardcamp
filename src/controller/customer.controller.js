@@ -1,6 +1,4 @@
 import { db } from "../database/database.connection.js";
-import validateSchema from "../middleware/validateSchema.js";
-import { customerSchema } from "../schema/customer.schema.js";
 
 export async function getCustomers(req, res) {
 	try {

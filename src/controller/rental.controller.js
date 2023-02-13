@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { db } from "../database/database.connection.js";
 
 export async function getRentals(req, res) {
@@ -85,7 +86,7 @@ export async function addRental(req, res) {
 				customerId,
 				gameId,
 				daysRented,
-				Date.now(),
+				dayjs().format("YYYY-MM-DD"),
 				gameArr.pricePerDay * daysRented,
 				null,
 				null,
@@ -96,4 +97,43 @@ export async function addRental(req, res) {
 		console.log(error);
 		return res.status(500).send("Internal server error");
 	}
+}
+
+export async function finishRental(req, res) {
+	const { id } = req.params;
+
+	try {
+		const result = await db.query("SELECT * FROM rentals WHERE id = $1", [
+			id,
+		]);
+		if (result.rowCount == 0) return res.sendStatus(404);
+		const rental = result.rows[0];
+
+		if (rental.returnDate) return res.sendStatus(400);
+
+		const game = await db.query(`SELECT * FROM games WHERE id = $1`, [
+			rental.gameId,
+		]);
+
+		const start = rental.rentDate;
+		const end = dayjs();
+		const delayedDays =
+			Math.abs(dayjs(start).diff(end, "day")) - rental.daysRented;
+		const delayFee = delayedDays * game.rows[0].pricePerDay;
+
+		console.log(
+			"PRICE PER DAY -> ",
+			game.rows[0].pricePerDay,
+			"DELAYED DAYS -> ",
+			delayedDays,
+			"DELAY FEE -> ",
+			delayFee
+		);
+
+		await db.query(
+			`UPDATE rentals SET "returnDate" = $1, "delayFee" = $2 WHERE id = $3`,
+			[end.format("YYYY-MM-DD"), delayFee, id]
+		);
+		return res.sendStatus(200);
+	} catch (error) {}
 }
