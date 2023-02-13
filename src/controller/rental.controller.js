@@ -121,19 +121,28 @@ export async function finishRental(req, res) {
 			Math.abs(dayjs(start).diff(end, "day")) - rental.daysRented;
 		const delayFee = delayedDays * game.rows[0].pricePerDay;
 
-		console.log(
-			"PRICE PER DAY -> ",
-			game.rows[0].pricePerDay,
-			"DELAYED DAYS -> ",
-			delayedDays,
-			"DELAY FEE -> ",
-			delayFee
-		);
-
 		await db.query(
 			`UPDATE rentals SET "returnDate" = $1, "delayFee" = $2 WHERE id = $3`,
 			[end.format("YYYY-MM-DD"), delayFee, id]
 		);
+		return res.sendStatus(200);
+	} catch (error) {}
+}
+
+export async function deleteRental(req, res) {
+	const { id } = req.params;
+
+	try {
+		const result = await db.query(`SELECT * FROM rentals WHERE id = $1`, [
+			id,
+		]);
+		if (result.rowCount == 0) return res.sendStatus(404);
+
+		const rental = result.rows[0];
+
+		if (rental.returnDate) return res.sendStatus(400);
+
+		await db.query(`DELETE FROM rentals WHERE id = $1`, [id]);
 		return res.sendStatus(200);
 	} catch (error) {}
 }
